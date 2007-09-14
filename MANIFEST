@@ -1,0 +1,9 @@
+ListOps.pm
+t/01.in
+t/runtests
+t/01.exp
+t/01.out
+t/01.t
+Makefile.PL
+README
+MANIFEST
