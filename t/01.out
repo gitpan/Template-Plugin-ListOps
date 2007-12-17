@@ -49,6 +49,8 @@ Testing rotate (ftol) (c d a b)        : c d a b
         (ltof) (b c d a)               : b c d a
 Count (2)                              : 2
 Delete (b c)                           : b c
+Delete (a unique)                      : b c
+Delete (a duplicates)                  : b a c
 Testing is_equal (0)                   : 0
                  (0)                   : 0
                  (0)                   : 0

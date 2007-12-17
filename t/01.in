@@ -279,6 +279,18 @@ Delete (b c)                           :
  [% ele -%]
 [% END -%]
 
+[% l = [ 'a', 'b', 'a', 'c' ] -%]
+Delete (a unique)                      :
+[%- FOREACH ele = ListOps.delete(l,'a','unique') -%]
+ [% ele -%]
+[% END -%]
+
+[% l = [ 'a', 'b', 'a', 'c' ] -%]
+Delete (a duplicates)                  :
+[%- FOREACH ele = ListOps.delete(l,'a','duplicates') -%]
+ [% ele -%]
+[% END -%]
+
 [% l1 = [ 'a', 'b' ] -%]
 [% l2 = [ 'a', 'c', 'b' ] -%]
 Testing is_equal (0)                   : [% ListOps.is_equal(l1,l2) %]

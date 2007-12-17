@@ -6,15 +6,15 @@ SYNOPSIS
 
 DESCRIPTION
     The ListOps plugin provides some nice list operations for use within
-    templates. I wanted to use the Set::Array module directly, but it fails
-    due to a weakness in the Want module. When/if this is fixed, I will
-    probably replace the routines with calls to that module.
+    templates. I wanted to use the Set::Array module to do most of the real
+    work, but it fails due to a weakness in the Want module. When/if this is
+    fixed, I will probably replace the routines with calls to that module.
 
-    I realize that many of these methods already exist as list virutal
-    messages, but this is an attempt to have most of the common (or not so
-    common) list operations in one place. These also have a much more
-    complete handling of duplicate list elements than those in the virtual
-    methods.
+    I realize that many of these methods already exist partially as list
+    virtual methods, but this is an attempt to have most of the common (or
+    not so common) list operations in one place. Also, these also have a
+    much more complete handling of duplicate list elements than those in the
+    virtual methods.
 
 METHODS
     Template::Plugin::ListOps makes the following methods available:
@@ -109,24 +109,28 @@ METHODS
 
     sorted
            [% list = ListOps.sorted(list) %]
-           [% list = ListOps.sorted(list,method) %]
+           [% list = ListOps.sorted(list,method [,arg,arg,...]) %]
 
-        This returns the elements of the list sorted based on a method. The
-        following methods are known:
+        This returns the elements of the list sorted based on a method.
+        Sorting is done using the methods defined in the Sort::DataTypes
+        module, refer to that manual for a list of methods, and the
+        description of the method. For example, to use the sort_domain
+        method, use the call:
 
-           forward   : alphabetical order
-           reverse   : reverse alphabetical order
-           forw_num  : numerical order
-           rev_num   : reverse numerical order
-           random    : sorts them in random order
+           [% list = ListOps.sorted(list,'domain') %]
 
-        The following methods are also available for specific data types:
+        All methods are available (but sorting by hashes are not).
 
-           ip        : sort IPs
-           dates     : sort dates in chronological order
-           rev_dates : sort dates in reverse chronological order.
+        The following methods are available for backwards compatibility:
 
-        If method is not given, it defaults to forward.
+           forward   : same as alphabetic
+           reverse   : same as rev_alphabetic
+           forw_num  : same as numerical
+           rev_num   : same as rev_numerical
+           dates     : same as date
+           rev_dates : same as rev_date
+
+        If method is not given, it defaults to alphabetic.
 
     join
            [% out = ListOps.join(list,string) %]
@@ -156,6 +160,8 @@ METHODS
     minval, maxval, minalph, maxalph
            [% ele = ListOps.minval(list) %]
            [% ele = ListOps.maxval(list) %]
+           [% ele = ListOps.minalph(list) %]
+           [% ele = ListOps.maxalph(list) %]
 
         These return the minimum or maximum numerical value in list or the
         first and last values in an alphabetically sorted list.
@@ -190,8 +196,16 @@ METHODS
 
     delete
            [% list = ListOps.delete(list,val) %]
+           [% list = ListOps.delete(list,val,op) %]
 
-        This deletes all occurences of val from the list.
+        This deletes occurences of val from the list.
+
+        If op is not given, it defaults to "unique".
+
+        If op is "unique", every occurence of val is removed from the list.
+
+        If op is "duplicates", duplicates are allowed and only the first
+        occurence of val is removed from the list.
 
     is_equal, not_equal
            [% flag = ListOps.is_equal(list1,list2) %]

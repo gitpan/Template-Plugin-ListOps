@@ -9,16 +9,19 @@ package Template::Plugin::ListOps;
 
 # Version 1.00  2007-08-16
 #    Initial release
+#
+# Version 1.01  2007-12-17
+#    Added op to delete function.
+#    Modified sorted to use Sort::DataTypes.
 
-$VERSION = "1.00";
+$VERSION = "1.01";
 ###############################################################################
 
 require 5.004;
 
 use strict;
 use base qw( Template::Plugin );
-use Date::Manip;
-Date_Init();
+use Sort::DataTypes;
 
 =pod
 
@@ -336,54 +339,51 @@ sub at {
 =item sorted
 
    [% list = ListOps.sorted(list) %]
-   [% list = ListOps.sorted(list,method) %]
+   [% list = ListOps.sorted(list,method [,arg,arg,...]) %]
 
-This returns the elements of the list sorted based on a method. The
-following methods are known:
+This returns the elements of the list sorted based on a method. Sorting
+is done using the methods defined in the Sort::DataTypes module, refer
+to that manual for a list of methods, and the description of the
+method. For example, to use the sort_domain method, use the call:
 
-   forward   : alphabetical order
-   reverse   : reverse alphabetical order
-   forw_num  : numerical order
-   rev_num   : reverse numerical order
-   random    : sorts them in random order
+   [% list = ListOps.sorted(list,'domain') %]
 
-The following methods are also available for specific data types:
+All methods are available (but sorting by hashes are not).
 
-   ip        : sort IPs
-   dates     : sort dates in chronological order
-   rev_dates : sort dates in reverse chronological order.
+The following methods are available for backwards compatibility:
 
-If method is not given, it defaults to forward.
+   forward   : same as alphabetic
+   reverse   : same as rev_alphabetic
+   forw_num  : same as numerical
+   rev_num   : same as rev_numerical
+   dates     : same as date
+   rev_dates : same as rev_date
+
+If method is not given, it defaults to alphabetic.
 
 =cut
 
 sub sorted {
-   shift;
-   my $list = shift;
-   my $meth = shift;
-   $meth    = "forward"  if (! $meth);
+   my(@args) = @_;
+   shift @args;
+   my $list = shift @args;
+   my $meth = shift @args;
 
-   my @list;
-   if      ($meth eq "forward") {
-      @list = sort @$list;
-   } elsif ($meth eq "reverse") {
-      @list = sort { $b cmp $a } @$list;
-   } elsif ($meth eq "forw_num") {
-      @list = sort { $a <=> $b } @$list;
-   } elsif ($meth eq "rev_num") {
-      @list = sort { $b <=> $a } @$list;
-   } elsif ($meth eq "random") {
-      @list = @$list;
-      Shuffle(\@list);
-   } elsif ($meth eq "ip") {
-      @list = @$list;
-      SortIP(\@list);
-   } elsif ($meth eq "dates"    ||  $meth eq "rev_dates") {
-      @list = @$list;
-      SortDates(\@list);
-      @list = reverse(@list)  if ($meth eq "rev_dates");
+   $meth    = "alphabetic"  if (! $meth);
+
+   my %meth = qw(forward       alphabetic
+                 reverse       rev_alphabetic
+                 forw_num      numerical
+                 rev_num       rev_numerical
+                 dates         date
+                 rev_dates     rev_date);
+   if (exists $meth{$meth}) {
+      $meth=$meth{$meth};
    }
 
+   sort_by_method($meth,$list,@args);
+
+   my @list = @$list;
    return [ @list ];
 }
 
@@ -509,6 +509,8 @@ sub pushval {
 
    [% ele = ListOps.minval(list) %]
    [% ele = ListOps.maxval(list) %]
+   [% ele = ListOps.minalph(list) %]
+   [% ele = ListOps.maxalph(list) %]
 
 These return the minimum or maximum numerical value in list or
 the first and last values in an alphabetically sorted list.
@@ -672,8 +674,16 @@ sub count {
 =item delete
 
    [% list = ListOps.delete(list,val) %]
+   [% list = ListOps.delete(list,val,op) %]
 
-This deletes all occurences of val from the list.
+This deletes occurences of val from the list.
+
+If op is not given, it defaults to "unique".
+
+If op is "unique", every occurence of val is removed from the list.
+
+If op is "duplicates", duplicates are allowed and only the first
+occurence of val is removed from the list.
 
 =cut
 
@@ -681,10 +691,17 @@ sub delete {
    shift;
    my $list = shift;
    my $val  = shift;
+   my $op   = shift;
+   $op      = "unique"  if (! $op);
 
    my @ret;
+   my $add  = 0;
    foreach my $ele (@$list) {
-      push(@ret,$ele)  unless ($ele eq $val);
+      if ($ele ne $val  ||  $add == 1) {
+         push(@ret,$ele);
+         next;
+      }
+      $add = 1  if ($op eq "duplicates");
    }
    return [ @ret ];
 }
@@ -964,5 +981,12 @@ Sullivan Beck (sbeck@cpan.org)
 
 1;
 # Local Variables:
+# mode: cperl
 # indent-tabs-mode: nil
+# cperl-indent-level: 3
+# cperl-continued-statement-offset: 2
+# cperl-continued-brace-offset: 0
+# cperl-brace-offset: 0
+# cperl-brace-imaginary-offset: 0
+# cperl-label-offset: -2
 # End:

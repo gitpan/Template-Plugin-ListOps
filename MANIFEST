@@ -4,6 +4,7 @@ t/runtests
 t/01.exp
 t/01.out
 t/01.t
+t/test.pl
 Makefile.PL
 README
 MANIFEST

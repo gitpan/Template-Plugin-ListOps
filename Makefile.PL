@@ -12,5 +12,6 @@ WriteMakefile(
                  Template::Plugin        => 0,
                  IO::File                => 0,
                  Date::Manip             => 0,
+                 Sort::DataTypes         => 0,
                 },
 );
