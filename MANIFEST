@@ -1,10 +1,16 @@
+Build.PL
+HISTORY
+LICENSE
 ListOps.pm
-t/01.in
-t/runtests
+Makefile.PL
+MANIFEST			This list of files
+META.yml
+README
 t/01.exp
+t/01.in
 t/01.out
 t/01.t
+t/pod.t
+t/pod_coverage.t
+t/runtests
 t/test.pl
-Makefile.PL
-README
-MANIFEST

@@ -5,13 +5,15 @@ SYNOPSIS
        [% USE ListOps %]
 
 DESCRIPTION
-    The ListOps plugin provides some nice list operations for use within
-    templates. I wanted to use the Set::Array module to do most of the real
-    work, but it fails due to a weakness in the Want module. When/if this is
-    fixed, I will probably replace the routines with calls to that module.
+    The ListOps plugin attempts to provide a complete set of list operations
+    for use within templates. Initially, I intended this to be a wrapper
+    around the Set::Array module, so much of it's functionality and the
+    naming of the functions come from that. However, the Set::Array module
+    fails due to a weakness in the Want module, so I ended up not using that
+    module at all.
 
     I realize that many of these methods already exist partially as list
-    virtual methods, but this is an attempt to have most of the common (or
+    virtual methods, but this is an attempt to have all of the common (or
     not so common) list operations in one place. Also, these also have a
     much more complete handling of duplicate list elements than those in the
     virtual methods.
@@ -19,19 +21,22 @@ DESCRIPTION
 METHODS
     Template::Plugin::ListOps makes the following methods available:
 
-    unique
+        unique
+
            [% list = ListOps.unique(list) %]
 
         This removes any duplicates in a list and returns a list containing
         only unique elements.
 
-    compact
+        compact
+
            [% list = ListOps.compact(list) %]
 
         This removes any undefs from a list and returns a list containing
         only defined elements.
 
-    union
+        union
+
            [% list = ListOps.union(list1,list2) %]
            [% list = ListOps.union(list1,list2,op) %]
 
@@ -44,7 +49,8 @@ METHODS
         If op is "duplicates", the lists are strictly added to each other
         and all duplicates are preserved.
 
-    difference
+        difference
+
            [% list = ListOps.difference(list1,list2) %]
            [% list = ListOps.difference(list1,list2,op) %]
 
@@ -63,7 +69,8 @@ METHODS
 
             difference([a a b c],[a],"duplicates")  => (a b c)
 
-    intersection
+        intersection
+
            [% list = ListOps.intersection(list1,list2) %]
            [% list = ListOps.intersection(list1,list2,op) %]
 
@@ -82,7 +89,8 @@ METHODS
 
             intersection([a a b c],[a a a b],"duplicates") => (a a b)
 
-    symmetric_difference
+        symmetric_difference
+
            [% list = ListOps.symmetric_difference(list1,list2) %]
            [% list = ListOps.symmetric_difference(list1,list2,op) %]
 
@@ -101,13 +109,15 @@ METHODS
 
             symmetric_difference([a a b c],[a a a b],"duplicates") => (a c)
 
-    at
+        at
+
            [% ele = ListOps.at(list,pos) %]
 
         This returns the elements at the specified position. Positions are
         numbered starting at 0.
 
-    sorted
+        sorted
+
            [% list = ListOps.sorted(list) %]
            [% list = ListOps.sorted(list,method [,arg,arg,...]) %]
 
@@ -119,7 +129,7 @@ METHODS
 
            [% list = ListOps.sorted(list,'domain') %]
 
-        All methods are available (but sorting by hashes are not).
+        All methods are available.
 
         The following methods are available for backwards compatibility:
 
@@ -132,32 +142,37 @@ METHODS
 
         If method is not given, it defaults to alphabetic.
 
-    join
+        join
+
            [% out = ListOps.join(list,string) %]
 
         This returns the elements joined into a string using the given
         string as a separator.
 
-    first, last
+        first, last
+
            [% ele = ListOps.first(list) %]
            [% ele = ListOps.last(list) %]
 
         These return the first or last elements of the list.
 
-    shiftval, popval
+        shiftval, popval
+
            [% ele = ListOps.shiftval(list) %]
            [% ele = ListOps.popval(list) %]
 
         These remove the first or last elements of the list and return it.
 
-    unshiftval, pushval
+        unshiftval, pushval
+
            [% list = ListOps.unshiftval(list,vals) %]
            [% list = ListOps.pushval(list,vals) %]
 
         These add the vals (which can be a single value or a list of values)
         to either the start or end of the list.
 
-    minval, maxval, minalph, maxalph
+        minval, maxval, minalph, maxalph
+
            [% ele = ListOps.minval(list) %]
            [% ele = ListOps.maxval(list) %]
            [% ele = ListOps.minalph(list) %]
@@ -166,19 +181,22 @@ METHODS
         These return the minimum or maximum numerical value in list or the
         first and last values in an alphabetically sorted list.
 
-    impose
+        impose
+
            [% list = ListOps.impose(list,string,placement) %]
 
         This appends or prepends a string to every element in the list.
         placement can be "append" or "prepend" (if it is absent, it defaults
         to "append").
 
-    reverse
+        reverse
+
            [% list = ListOps.reverse(list) %]
 
         This reverses the list.
 
-    rotate
+        rotate
+
            [% list = ListOps.rotate(list,direction,num) %]
 
         This rotates the list. Each rotation depends on the value of
@@ -189,12 +207,14 @@ METHODS
 
         This will happen num number of times (which defaults to 1).
 
-    count
+        count
+
            [% num = ListOps.count(list,val) %]
 
         This counts the number of times val appears in the list.
 
-    delete
+        delete
+
            [% list = ListOps.delete(list,val) %]
            [% list = ListOps.delete(list,val,op) %]
 
@@ -207,7 +227,8 @@ METHODS
         If op is "duplicates", duplicates are allowed and only the first
         occurence of val is removed from the list.
 
-    is_equal, not_equal
+        is_equal, not_equal
+
            [% flag = ListOps.is_equal(list1,list2) %]
            [% flag = ListOps.is_equal(list1,list2,op) %]
 
@@ -224,12 +245,14 @@ METHODS
         If "op" is "duplicates", the lists are strictly evaluated, and all
         duplicates are kept.
 
-    clear
+        clear
+
            [% list = ListOps.clear(list) %]
 
         This returns an empty list.
 
-    fill
+        fill
+
            [% list = ListOps.fill(list,val,start,length) %]
 
         This sets elements of a list to be val.
@@ -239,19 +262,22 @@ METHODS
         end of the list. If length refers past the end of the list, new
         values are added to the end of the list.
 
-    splice
+        splice
+
            [% list = ListOps.splice(list,start,length,vals) %]
 
         This performs the perl splice command on a list.
 
-    indexval, rindexval
+        indexval, rindexval
+
            [% num = ListOps.indexval(list,val) %]
            [% num = ListOps.rindexval(list,val) %]
 
         This returns the index of the first/last occurence of val in the
         list (or undef if the value doesn't occur).
 
-    set
+        set
+
            [% list = ListOps.set(list,index,val) %]
 
         This sets a specific index to a value.
@@ -261,4 +287,12 @@ KNOWN PROBLEMS
 
 AUTHOR
     Sullivan Beck (sbeck@cpan.org)
+
+POD ERRORS
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 45:
+        You can't have =items (as at line 53) unless the first thing after
+        the =over is an =item
 

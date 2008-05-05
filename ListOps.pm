@@ -1,24 +1,15 @@
 package Template::Plugin::ListOps;
-# Copyright (c) 2007-2007 Sullivan Beck. All rights reserved.
+# Copyright (c) 2007-2008 Sullivan Beck. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 ###############################################################################
-# HISTORY
-###############################################################################
 
-# Version 1.00  2007-08-16
-#    Initial release
-#
-# Version 1.01  2007-12-17
-#    Added op to delete function.
-#    Modified sorted to use Sort::DataTypes.
-
-$VERSION = "1.01";
-###############################################################################
+$VERSION = "1.02";
 
 require 5.004;
 
+use warnings;
 use strict;
 use base qw( Template::Plugin );
 use Sort::DataTypes;
@@ -35,29 +26,30 @@ Template::Plugin::ListOps - Plugin interface to list operations
 
 =head1 DESCRIPTION
 
-The ListOps plugin provides some nice list operations for use within
-templates. I wanted to use the Set::Array module to do most of the
-real work, but it fails due to a weakness in the Want module.
-When/if this is fixed, I will probably replace the routines with
-calls to that module.
+The ListOps plugin attempts to provide a complete set of list
+operations for use within templates. Initially, I intended this to be
+a wrapper around the Set::Array module, so much of it's functionality
+and the naming of the functions come from that. However, the
+Set::Array module fails due to a weakness in the Want module, so I
+ended up not using that module at all.
 
 I realize that many of these methods already exist partially as list
-virtual methods, but this is an attempt to have most of the common
-(or not so common) list operations in one place. Also, these also
-have a much more complete handling of duplicate list elements than
-those in the virtual methods.
+virtual methods, but this is an attempt to have all of the common (or
+not so common) list operations in one place. Also, these also have a
+much more complete handling of duplicate list elements than those in
+the virtual methods.
 
 =head1 METHODS
 
 Template::Plugin::ListOps makes the following methods available:
-
-=over 4
 
 =cut
 
 ###############################################################################
 ###############################################################################
 =pod
+
+=over 4
 
 =item unique
 
@@ -225,6 +217,7 @@ sub intersection {
 
    my @ret;
    foreach my $ele (@$list1) {
+      next  if (! defined $ele);
       if (exists $list2{$ele}  &&  $list2{$ele} > 0) {
          $list2{$ele}--;
          push(@ret,$ele);
@@ -348,7 +341,7 @@ method. For example, to use the sort_domain method, use the call:
 
    [% list = ListOps.sorted(list,'domain') %]
 
-All methods are available (but sorting by hashes are not).
+All methods are available.
 
 The following methods are available for backwards compatibility:
 
@@ -908,63 +901,6 @@ sub set {
 
 ###############################################################################
 ###############################################################################
-# ROUTINES FROM MY PERSONAL LIBRARY
-
-{
-   my $randomized = 0;
-
-   sub Randomize {
-      return  if ($randomized);
-      $randomized = 1;
-      srand(time);
-   }
-}
-
-# This routine was taken from The Perl Cookbook
-sub Shuffle {
-  my $array = shift;
-  Randomize();
-  my $i;
-  for ($i = @$array; --$i; ) {
-    my $j = int rand ($i+1);
-    next if $i == $j;
-    @$array[$i,$j] = @$array[$j,$i];
-  }
-}
-
-sub SortIP {
-  my($list)=@_;
-  my(@list)=@$list;
-  @list=sort _SortIP @$list;
-  @$list=@list;
-}
-sub _SortIP {
-  my(@a,@b);
-  (@a)=split('\.',$a);
-  (@b)=split('\.',$b);
-  return ($a[0] <=> $b[0]  ||
-          $a[1] <=> $b[1]  ||
-          $a[2] <=> $b[2]  ||
-          $a[3] <=> $b[3]);
-}
-
-sub SortDates {
-  my($list)=@_;
-  my(@list)=@$list;
-  my %dates;
-  foreach my $date (@list) {
-    $dates{ ParseDate($date) } = $date;
-  }
-  my @sorted = sort { Date_Cmp($a,$b) } keys %dates;
-  @list = ();
-  foreach my $date (@sorted) {
-    push(@list,$dates{$date});
-  }
-  @$list=@list;
-}
-
-###############################################################################
-###############################################################################
 =pod
 
 =back
@@ -972,6 +908,11 @@ sub SortDates {
 =head1 KNOWN PROBLEMS
 
 None at this point.
+
+=head1 LICENSE
+
+This script is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
