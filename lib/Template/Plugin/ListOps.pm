@@ -5,60 +5,18 @@ package Template::Plugin::ListOps;
 
 ###############################################################################
 
-$VERSION = "1.02";
+$VERSION = "1.03";
 
 require 5.004;
 
 use warnings;
 use strict;
 use base qw( Template::Plugin );
+use Template::Plugin;
 use Sort::DataTypes;
 
-=pod
-
-=head1 NAME
-
-Template::Plugin::ListOps - Plugin interface to list operations
-
-=head1 SYNOPSIS
-
-   [% USE ListOps %]
-
-=head1 DESCRIPTION
-
-The ListOps plugin attempts to provide a complete set of list
-operations for use within templates. Initially, I intended this to be
-a wrapper around the Set::Array module, so much of it's functionality
-and the naming of the functions come from that. However, the
-Set::Array module fails due to a weakness in the Want module, so I
-ended up not using that module at all.
-
-I realize that many of these methods already exist partially as list
-virtual methods, but this is an attempt to have all of the common (or
-not so common) list operations in one place. Also, these also have a
-much more complete handling of duplicate list elements than those in
-the virtual methods.
-
-=head1 METHODS
-
-Template::Plugin::ListOps makes the following methods available:
-
-=cut
-
 ###############################################################################
 ###############################################################################
-=pod
-
-=over 4
-
-=item unique
-
-   [% list = ListOps.unique(list) %]
-
-This removes any duplicates in a list and returns a list containing only
-unique elements.
-
-=cut
 
 sub unique {
    shift;
@@ -73,16 +31,6 @@ sub unique {
 }
 
 ###############################################################################
-=pod
-
-=item compact
-
-   [% list = ListOps.compact(list) %]
-
-This removes any undefs from a list and returns a list containing only
-defined elements.
-
-=cut
 
 sub compact {
    shift;
@@ -96,23 +44,6 @@ sub compact {
 }
 
 ###############################################################################
-=pod
-
-=item union
-
-   [% list = ListOps.union(list1,list2) %]
-   [% list = ListOps.union(list1,list2,op) %]
-
-This takes two lists and combines them depending on what "op" is.  If
-op is not given, it defaults to "unique".
-
-If op is "unique", the two lists are combined, but all duplicates are
-removed.
-
-If op is "duplicates", the lists are strictly added to each other and
-all duplicates are preserved.
-
-=cut
 
 sub union {
    shift;
@@ -127,29 +58,6 @@ sub union {
 }
 
 ###############################################################################
-=pod
-
-=item difference
-
-   [% list = ListOps.difference(list1,list2) %]
-   [% list = ListOps.difference(list1,list2,op) %]
-
-This takes two lists and removes the second list from the first. The
-exact method of this happending depending on what op is.  If op is
-not given, it defaults to "unique".
-
-If op is "unique", every occurence of each of it's elements is removed
-from the first list.
-
-    difference([a a b c],[a],"unique") => (b c)
-
-If op is "duplicates", duplicates are allowed, and the first
-occurence of each element in the second list is removed from the first
-list.
-
-    difference([a a b c],[a],"duplicates")  => (a b c)
-
-=cut
 
 sub difference {
    shift;
@@ -179,29 +87,6 @@ sub difference {
 }
 
 ###############################################################################
-=pod
-
-=item intersection
-
-   [% list = ListOps.intersection(list1,list2) %]
-   [% list = ListOps.intersection(list1,list2,op) %]
-
-This takes two lists and finds the intersection of the two. The
-intersection are elements that are in both lists. The manner of
-treating duplicates depends on the value of op. If op is not
-given, it defaults to "unique".
-
-If op is "unique", a single instance is returned for each value in
-both lists.
-
-    intersection([a a b c],[a a a b],"unique") => (a b)
-
-If op is "duplicates", a single instance is returned for each instance of
-a value that appears in both lists.
-
-    intersection([a a b c],[a a a b],"duplicates") => (a a b)
-
-=cut
 
 sub intersection {
    shift;
@@ -228,29 +113,6 @@ sub intersection {
 }
 
 ###############################################################################
-=pod
-
-=item symmetric_difference
-
-   [% list = ListOps.symmetric_difference(list1,list2) %]
-   [% list = ListOps.symmetric_difference(list1,list2,op) %]
-
-This takes two lists and finds the symmetric difference of the
-two. The symmetric difference are elements that are in either list,
-but not both. The manner of treating duplicates depends on the value
-of op. If op is not given, it defaults to "unique".
-
-If op is "unique", any instance of a value negates all values in
-the other list.
-
-    symmetric_difference([a a b c],[a a a b],"unique") => (c)
-
-If op is "duplicates", a single instance of a value only negates a
-single value in the other list.
-
-    symmetric_difference([a a b c],[a a a b],"duplicates") => (a c)
-
-=cut
 
 sub symmetric_difference {
    shift;
@@ -308,16 +170,6 @@ sub _min {
 }
 
 ###############################################################################
-=pod
-
-=item at
-
-   [% ele = ListOps.at(list,pos) %]
-
-This returns the elements at the specified position. Positions are
-numbered starting at 0.
-
-=cut
 
 sub at {
    shift;
@@ -327,34 +179,6 @@ sub at {
 }
 
 ###############################################################################
-=pod
-
-=item sorted
-
-   [% list = ListOps.sorted(list) %]
-   [% list = ListOps.sorted(list,method [,arg,arg,...]) %]
-
-This returns the elements of the list sorted based on a method. Sorting
-is done using the methods defined in the Sort::DataTypes module, refer
-to that manual for a list of methods, and the description of the
-method. For example, to use the sort_domain method, use the call:
-
-   [% list = ListOps.sorted(list,'domain') %]
-
-All methods are available.
-
-The following methods are available for backwards compatibility:
-
-   forward   : same as alphabetic
-   reverse   : same as rev_alphabetic
-   forw_num  : same as numerical
-   rev_num   : same as rev_numerical
-   dates     : same as date
-   rev_dates : same as rev_date
-
-If method is not given, it defaults to alphabetic.
-
-=cut
 
 sub sorted {
    my(@args) = @_;
@@ -381,16 +205,6 @@ sub sorted {
 }
 
 ###############################################################################
-=pod
-
-=item join
-
-   [% out = ListOps.join(list,string) %]
-
-This returns the elements joined into a string using the given string
-as a separator.
-
-=cut
 
 sub join {
    shift;
@@ -400,16 +214,6 @@ sub join {
 }
 
 ###############################################################################
-=pod
-
-=item first, last
-
-   [% ele = ListOps.first(list) %]
-   [% ele = ListOps.last(list) %]
-
-These return the first or last elements of the list.
-
-=cut
 
 sub first {
    shift;
@@ -423,16 +227,6 @@ sub last {
 }
 
 ###############################################################################
-=pod
-
-=item shiftval, popval
-
-   [% ele = ListOps.shiftval(list) %]
-   [% ele = ListOps.popval(list) %]
-
-These remove the first or last elements of the list and return it.
-
-=cut
 
 sub shiftval {
    shift;
@@ -446,17 +240,6 @@ sub popval {
 }
 
 ###############################################################################
-=pod
-
-=item unshiftval, pushval
-
-   [% list = ListOps.unshiftval(list,vals) %]
-   [% list = ListOps.pushval(list,vals) %]
-
-These add the vals (which can be a single value or a list of values) to
-either the start or end of the list.
-
-=cut
 
 sub unshiftval {
    shift;
@@ -496,19 +279,6 @@ sub pushval {
 }
 
 ###############################################################################
-=pod
-
-=item minval, maxval, minalph, maxalph
-
-   [% ele = ListOps.minval(list) %]
-   [% ele = ListOps.maxval(list) %]
-   [% ele = ListOps.minalph(list) %]
-   [% ele = ListOps.maxalph(list) %]
-
-These return the minimum or maximum numerical value in list or
-the first and last values in an alphabetically sorted list.
-
-=cut
 
 sub minval {
    shift;
@@ -549,16 +319,6 @@ sub maxalph {
 }
 
 ###############################################################################
-=pod
-
-=item impose
-
-   [% list = ListOps.impose(list,string,placement) %]
-
-This appends or prepends a string to every element in the list. placement
-can be "append" or "prepend" (if it is absent, it defaults to "append").
-
-=cut
 
 sub impose {
    shift;
@@ -581,15 +341,6 @@ sub impose {
 }
 
 ###############################################################################
-=pod
-
-=item reverse
-
-   [% list = ListOps.reverse(list) %]
-
-This reverses the list.
-
-=cut
 
 sub reverse {
    shift;
@@ -598,20 +349,6 @@ sub reverse {
 }
 
 ###############################################################################
-=pod
-
-=item rotate
-
-   [% list = ListOps.rotate(list,direction,num) %]
-
-This rotates the list. Each rotation depends on the value of direction
-which can be ftol or ltof. If it is ftol (the default direction), the
-first element is removed from the list and added to the end. If it is
-ltof, the last element is removed and moved to the front of the list.
-
-This will happen num number of times (which defaults to 1).
-
-=cut
 
 sub rotate {
    shift;
@@ -639,15 +376,6 @@ sub rotate {
 }
 
 ###############################################################################
-=pod
-
-=item count
-
-   [% num = ListOps.count(list,val) %]
-
-This counts the number of times val appears in the list.
-
-=cut
 
 sub count {
    shift;
@@ -662,23 +390,6 @@ sub count {
 }
 
 ###############################################################################
-=pod
-
-=item delete
-
-   [% list = ListOps.delete(list,val) %]
-   [% list = ListOps.delete(list,val,op) %]
-
-This deletes occurences of val from the list.
-
-If op is not given, it defaults to "unique".
-
-If op is "unique", every occurence of val is removed from the list.
-
-If op is "duplicates", duplicates are allowed and only the first
-occurence of val is removed from the list.
-
-=cut
 
 sub delete {
    shift;
@@ -700,27 +411,6 @@ sub delete {
 }
 
 ###############################################################################
-=pod
-
-=item is_equal, not_equal
-
-   [% flag = ListOps.is_equal(list1,list2) %]
-   [% flag = ListOps.is_equal(list1,list2,op) %]
-
-   [% flag = ListOps.not_equal(list1,list2) %]
-   [% flag = ListOps.not_equal(list1,list2,op) %]
-
-This takes two lists and tests to see if they are equal or not. The
-order of the elements is ignored, so (a,b) = (b,a).
-
-If op is not given, it defaults to "unique".
-
-If "op" is "unique", duplicates are ignored, so (a,a,b) = (a,b).
-
-If "op" is "duplicates", the lists are strictly evaluated, and all
-duplicates are kept.
-
-=cut
 
 sub is_equal {
    shift;
@@ -765,15 +455,6 @@ sub not_equal {
 }
 
 ###############################################################################
-=pod
-
-=item clear
-
-   [% list = ListOps.clear(list) %]
-
-This returns an empty list.
-
-=cut
 
 sub clear {
    shift;
@@ -782,20 +463,6 @@ sub clear {
 }
 
 ###############################################################################
-=pod
-
-=item fill
-
-   [% list = ListOps.fill(list,val,start,length) %]
-
-This sets elements of a list to be val.
-
-If val is not passed in, it defaults to "". If start is not passed in,
-it defaults to 0. If length is not passed in, it default to the end of
-the list. If length refers past the end of the list, new values are
-added to the end of the list.
-
-=cut
 
 sub fill {
    shift;
@@ -816,15 +483,6 @@ sub fill {
 }
 
 ###############################################################################
-=pod
-
-=item splice
-
-   [% list = ListOps.splice(list,start,length,vals) %]
-
-This performs the perl splice command on a list.
-
-=cut
 
 sub splice {
    shift;
@@ -844,17 +502,6 @@ sub splice {
 }
 
 ###############################################################################
-=pod
-
-=item indexval, rindexval
-
-   [% num = ListOps.indexval(list,val) %]
-   [% num = ListOps.rindexval(list,val) %]
-
-This returns the index of the first/last occurence of val in the list
-(or undef if the value doesn't occur).
-
-=cut
 
 sub indexval {
    shift;
@@ -878,15 +525,6 @@ sub rindexval {
 }
 
 ###############################################################################
-=pod
-
-=item set
-
-   [% list = ListOps.set(list,index,val) %]
-
-This sets a specific index to a value.
-
-=cut
 
 sub set {
    shift;
@@ -898,27 +536,6 @@ sub set {
    $list[$index] = $val;
    return [ @list ];
 }
-
-###############################################################################
-###############################################################################
-=pod
-
-=back
-
-=head1 KNOWN PROBLEMS
-
-None at this point.
-
-=head1 LICENSE
-
-This script is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
-
-=head1 AUTHOR
-
-Sullivan Beck (sbeck@cpan.org)
-
-=cut
 
 1;
 # Local Variables:
