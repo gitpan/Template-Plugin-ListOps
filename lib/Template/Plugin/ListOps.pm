@@ -5,13 +5,14 @@ package Template::Plugin::ListOps;
 
 ###############################################################################
 
-$VERSION = "1.03";
+$VERSION = "1.04";
 
 require 5.004;
 
 use warnings;
 use strict;
 use base qw( Template::Plugin );
+use Template;
 use Template::Plugin;
 use Sort::DataTypes;
 
