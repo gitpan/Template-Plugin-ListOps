@@ -1,6 +1,6 @@
 ---
 name: Template-Plugin-ListOps
-version: 1.04
+version: 2.00
 author:
   - 'Sullivan Beck <sbeck@cpan.org>'
 abstract: Plugin interface to list operations
@@ -8,17 +8,16 @@ license: perl
 resources:
   license: http://dev.perl.org/licenses/
 requires:
+  Set::ArrayAlt: 0
   Sort::DataTypes: 0
   Template: 0
   Template::Plugin: 0
   perl: 5.6.0
-build_requires:
-  Test::More: 0
 provides:
   Template::Plugin::ListOps:
     file: lib/Template/Plugin/ListOps.pm
-    version: 1.04
-generated_by: Module::Build version 0.2808
+    version: 2.00
+generated_by: Module::Build version 0.280801
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2

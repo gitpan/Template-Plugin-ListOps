@@ -1,11 +1,11 @@
 package Template::Plugin::ListOps;
-# Copyright (c) 2007-2008 Sullivan Beck. All rights reserved.
+# Copyright (c) 2007-2009 Sullivan Beck. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 ###############################################################################
 
-$VERSION = "1.04";
+$VERSION = "2.00";
 
 require 5.004;
 
@@ -14,6 +14,8 @@ use strict;
 use base qw( Template::Plugin );
 use Template;
 use Template::Plugin;
+use Set::ArrayAlt;
+
 use Sort::DataTypes;
 
 ###############################################################################
@@ -23,12 +25,9 @@ sub unique {
    shift;
    my $list = shift;
 
-   my %ele;
-   my @ret;
-   foreach my $ele (@$list) {
-      push(@ret,$ele), $ele{$ele} = 1  if (! exists $ele{$ele});
-   }
-   return [ @ret ];
+   my $s = new Set::ArrayAlt @$list;
+   $s->unique();
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -37,11 +36,9 @@ sub compact {
    shift;
    my $list = shift;
 
-   my @ret;
-   foreach my $ele (@$list) {
-      push(@ret,$ele)  if (defined $ele);
-   }
-   return [ @ret ];
+   my $s = new Set::ArrayAlt @$list;
+   $s->compact();
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -52,10 +49,12 @@ sub union {
    my $list2 = shift;
    my $op    = shift;
    $op       = "unique"  if (! $op);
+   my $u     = ($op eq "unique" ? 1 : 0);
 
-   my @ret = (@$list1,@$list2);
-   @ret = @{ unique("",\@ret) }  if ($op eq "unique");
-   return [ @ret ];
+   my $s1  = new Set::ArrayAlt @$list1;
+   my $s2  = new Set::ArrayAlt @$list2;
+   my $s3  = $s1->union($s2,$u);
+   return [ $s3->list() ];
 }
 
 ###############################################################################
@@ -66,25 +65,12 @@ sub difference {
    my $list2 = shift;
    my $op    = shift;
    $op       = "unique"  if (! $op);
+   my $u     = ($op eq "unique" ? 1 : 0);
 
-   my %list2;
-   foreach my $ele (@$list2) {
-      $list2{$ele}++;
-   }
-
-   my @ret;
-   foreach my $ele (@$list1) {
-      if ($op eq "unique") {
-         push(@ret,$ele)  if (! exists $list2{$ele});
-      } else {
-         if (exists $list2{$ele}  &&  $list2{$ele} > 0) {
-            $list2{$ele}--;
-         } else {
-            push(@ret,$ele);
-         }
-      }
-   }
-   return [ @ret ];
+   my $s1  = new Set::ArrayAlt @$list1;
+   my $s2  = new Set::ArrayAlt @$list2;
+   my $s3  = $s1->difference($s2,$u);
+   return [ $s3->list() ];
 }
 
 ###############################################################################
@@ -95,22 +81,12 @@ sub intersection {
    my $list2 = shift;
    my $op    = shift;
    $op       = "unique"  if (! $op);
+   my $u     = ($op eq "unique" ? 1 : 0);
 
-   my %list2;
-   foreach my $ele (@$list2) {
-      $list2{$ele}++;
-   }
-
-   my @ret;
-   foreach my $ele (@$list1) {
-      next  if (! defined $ele);
-      if (exists $list2{$ele}  &&  $list2{$ele} > 0) {
-         $list2{$ele}--;
-         push(@ret,$ele);
-      }
-   }
-   @ret = @{ unique("",\@ret) }  if ($op eq "unique");
-   return [ @ret ];
+   my $s1  = new Set::ArrayAlt @$list1;
+   my $s2  = new Set::ArrayAlt @$list2;
+   my $s3  = $s1->intersection($s2,$u);
+   return [ $s3->list() ];
 }
 
 ###############################################################################
@@ -121,53 +97,12 @@ sub symmetric_difference {
    my $list2 = shift;
    my $op    = shift;
    $op       = "unique"  if (! $op);
+   my $u     = ($op eq "unique" ? 1 : 0);
 
-   my %list1;
-   foreach my $ele (@$list1) {
-      $list1{$ele}++;
-   }
-   my %list2;
-   foreach my $ele (@$list2) {
-      $list2{$ele}++;
-   }
-
-   my @ret;
-   if ($op eq "unique") {
-      foreach my $ele (@$list1) {
-         push(@ret,$ele)  unless (exists $list2{$ele});
-      }
-      foreach my $ele (@$list2) {
-         push(@ret,$ele)  unless (exists $list1{$ele});
-      }
-      @ret = @{ unique("",\@ret) };
-   } else {
-      foreach my $ele (keys %list1) {
-         if (exists $list2{$ele}) {
-            my $min = _min($list1{$ele},$list2{$ele});
-            $list1{$ele} -= $min;
-            $list2{$ele} -= $min;
-         }
-      }
-      foreach my $ele (@$list2) {
-         if (exists $list1{$ele}) {
-            my $min = _min($list1{$ele},$list2{$ele});
-            $list1{$ele} -= $min;
-            $list2{$ele} -= $min;
-         }
-      }
-      foreach my $ele (@$list1) {
-         push(@ret,$ele), $list1{$ele}--  if ($list1{$ele}>0);
-      }
-      foreach my $ele (@$list2) {
-         push(@ret,$ele), $list2{$ele}--  if ($list2{$ele}>0);
-      }
-   }
-   return [ @ret ];
-}
-sub _min {
-   my($a,$b) = @_;
-   return $a  if ($a<$b);
-   return $b;
+   my $s1  = new Set::ArrayAlt @$list1;
+   my $s2  = new Set::ArrayAlt @$list2;
+   my $s3  = $s1->symmetric_difference($s2,$u);
+   return [ $s3->list() ];
 }
 
 ###############################################################################
@@ -176,7 +111,9 @@ sub at {
    shift;
    my $list = shift;
    my $pos  = shift;
-   return $$list[$pos];
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->at($pos);
 }
 
 ###############################################################################
@@ -199,10 +136,9 @@ sub sorted {
       $meth=$meth{$meth};
    }
 
-   sort_by_method($meth,$list,@args);
-
-   my @list = @$list;
-   return [ @list ];
+   my $s = new Set::ArrayAlt @$list;
+   $s->sort($meth,@args);
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -211,7 +147,7 @@ sub join {
    shift;
    my $list = shift;
    my $str  = shift;
-   return join($str,@$list);
+   return CORE::join($str,@$list);
 }
 
 ###############################################################################
@@ -219,12 +155,16 @@ sub join {
 sub first {
    shift;
    my $list = shift;
-   return $$list[0];
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->first();
 }
 sub last {
    shift;
    my $list = shift;
-   return $$list[$#$list];
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->last();
 }
 
 ###############################################################################
@@ -232,12 +172,22 @@ sub last {
 sub shiftval {
    shift;
    my $list = shift;
-   return shift(@$list);
+
+   my $s = new Set::ArrayAlt @$list;
+   my $ret = $s->shift();
+   @$list  = $s->list();
+
+   $ret;
 }
 sub popval {
    shift;
    my $list = shift;
-   return pop(@$list);
+
+   my $s = new Set::ArrayAlt @$list;
+   my $ret = $s->pop();
+   @$list  = $s->list();
+
+   $ret;
 }
 
 ###############################################################################
@@ -245,38 +195,26 @@ sub popval {
 sub unshiftval {
    shift;
    my $list = shift;
-   my @vals;
-   if ($#_ == 0) {
-      my $vals = shift;
-      if (ref($vals)) {
-         @vals = @$vals;
-      } else {
-         @vals = ($vals);
-      }
-   } else {
-      @vals = @_;
+   my @vals   = @_;
+   if (@vals  &&  $#vals == 0  &&  ref($vals[0])) {
+      @vals = @{ $vals[0] };
    }
-   my @list = @$list;
-   unshift(@list,@vals);
-   return [ @list ];
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->unshift(@vals);
+   return [ $s->list() ];
 }
 sub pushval {
    shift;
    my $list = shift;
-   my @vals;
-   if ($#_ == 0) {
-      my $vals = shift;
-      if (ref($vals)) {
-         @vals = @$vals;
-      } else {
-         @vals = ($vals);
-      }
-   } else {
-      @vals = @_;
+   my @vals   = @_;
+   if (@vals  &&  $#vals == 0  &&  ref($vals[0])) {
+      @vals = @{ $vals[0] };
    }
-   my @list = @$list;
-   push(@list,@vals);
-   return [ @list ];
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->push(@vals);
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -284,39 +222,31 @@ sub pushval {
 sub minval {
    shift;
    my $list = shift;
-   my $ret  = $$list[0];
-   foreach my $val (@$list) {
-      $ret = $val  if ($val < $ret);
-   }
-   return $ret;
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->min("numerical");
 }
 sub maxval {
    shift;
    my $list = shift;
-   my $ret  = $$list[0];
-   foreach my $val (@$list) {
-      $ret = $val  if ($val > $ret);
-   }
-   return $ret;
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->max("numerical");
 }
 
 sub minalph {
    shift;
    my $list = shift;
-   my $ret  = $$list[0];
-   foreach my $val (@$list) {
-      $ret = $val  if ($val lt $ret);
-   }
-   return $ret;
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->min("alphabetic");
 }
 sub maxalph {
    shift;
    my $list = shift;
-   my $ret  = $$list[0];
-   foreach my $val (@$list) {
-      $ret = $val  if ($val gt $ret);
-   }
-   return $ret;
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->max("alphabetic");
 }
 
 ###############################################################################
@@ -346,7 +276,10 @@ sub impose {
 sub reverse {
    shift;
    my $list = shift;
-   return [ reverse @$list ];
+
+   my $s = new Set::ArrayAlt @$list;
+   $s->reverse();
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -361,19 +294,11 @@ sub rotate {
       $direction = "ftol";
    }
    $num          = 1  if (! $num);
+   $num          = -$num  if ($direction eq "ltof");
 
-   my @list      = @$list;
-   if ($direction eq "ftol") {
-      for (my $i=0; $i<$num; $i++) {
-         push(@list,shift(@list));
-      }
-   } else {
-      for (my $i=0; $i<$num; $i++) {
-         unshift(@list,pop(@list));
-      }
-   }
-
-   return [ @list ];
+   my $s = new Set::ArrayAlt @$list;
+   $s->rotate($num);
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -383,11 +308,8 @@ sub count {
    my $list = shift;
    my $val  = shift;
 
-   my $num = 0;
-   foreach my $ele (@$list) {
-      $num++  if ($ele eq $val);
-   }
-   return $num;
+   my $s = new Set::ArrayAlt @$list;
+   $s->count($val);
 }
 
 ###############################################################################
@@ -398,17 +320,11 @@ sub delete {
    my $val  = shift;
    my $op   = shift;
    $op      = "unique"  if (! $op);
+   my $all  = ($op eq "unique" ? 1 : 0);
 
-   my @ret;
-   my $add  = 0;
-   foreach my $ele (@$list) {
-      if ($ele ne $val  ||  $add == 1) {
-         push(@ret,$ele);
-         next;
-      }
-      $add = 1  if ($op eq "duplicates");
-   }
-   return [ @ret ];
+   my $s = new Set::ArrayAlt @$list;
+   $s->delete($all,0,$val);
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -419,36 +335,11 @@ sub is_equal {
    my $list2 = shift;
    my $op    = shift;
    $op       = "unique"  if (! $op);
+   my $u     = ($op eq "unique" ? 1 : 0);
 
-   my %list1;
-   foreach my $ele (@$list1) {
-      $list1{$ele}++;
-   }
-
-   my %list2;
-   foreach my $ele (@$list2) {
-      $list2{$ele}++;
-   }
-
-   if ($op eq "unique") {
-      foreach my $ele (@$list1) {
-         return 0  if (! exists $list2{$ele});
-      }
-      foreach my $ele (@$list2) {
-         return 0  if (! exists $list1{$ele});
-      }
-      return 1;
-   }
-
-   foreach my $ele (@$list1) {
-      return 0  if (! exists $list2{$ele}  ||  $list2{$ele} == 0);
-      $list2{$ele}--;
-   }
-   foreach my $ele (@$list2) {
-      return 0  if (! exists $list1{$ele}  ||  $list1{$ele} == 0);
-      $list1{$ele}--;
-   }
-   return 1;
+   my $s1  = new Set::ArrayAlt @$list1;
+   my $s2  = new Set::ArrayAlt @$list2;
+   $s1->is_equal($s2,$u);
 }
 
 sub not_equal {
@@ -471,16 +362,10 @@ sub fill {
    my $val    = shift;
    my $start  = shift;
    my $length = shift;
-   my @list   = @$list;
-   $val       = ""  if (! defined $val);
-   $start     = 0   if (! $start);
-   $length    = ($#list + 1 - $start)  if (! defined $length);
-   my $end    = $start + $length - 1;
 
-   foreach my $i ($start..$end) {
-      $list[$i] = $val;
-   }
-   return [ @list ];
+   my $s = new Set::ArrayAlt @$list;
+   $s->fill($val,$start,$length);
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -491,15 +376,13 @@ sub splice {
    my $start  = shift;
    my $length = shift;
    my @vals   = @_;
-   my @list   = @$list;
-   if ($#vals == 0  &&  ref($vals[0]) eq "ARRAY") {
-      @vals   = @{ $vals[0] };
+   if (@vals  &&  $#vals == 0  &&  ref($vals[0])) {
+      @vals = @{ $vals[0] };
    }
-   $start     = 0   if (! $start);
-   $length    = ($#list + 1 - $start)  if (! defined $length);
 
-   splice(@list,$start,$length,@vals);
-   return [ @list ];
+   my $s = new Set::ArrayAlt @$list;
+   $s->splice($start,$length,@vals);
+   return [ $s->list() ];
 }
 
 ###############################################################################
@@ -509,20 +392,18 @@ sub indexval {
    my $list = shift;
    my $val  = shift;
 
-   for (my $i=0; $i<=$#$list; $i++) {
-      return $i  if ($$list[$i] eq $val);
-   }
-   return undef;
+   my $s = new Set::ArrayAlt @$list;
+   my $ret = $s->index($val);
+   return $ret;
 }
 sub rindexval {
    shift;
    my $list = shift;
    my $val  = shift;
 
-   for (my $i=$#$list; $i>=0; $i--) {
-      return $i  if ($$list[$i] eq $val);
-   }
-   return undef;
+   my $s = new Set::ArrayAlt @$list;
+   my $ret = $s->rindex($val);
+   return $ret;
 }
 
 ###############################################################################
@@ -532,10 +413,10 @@ sub set {
    my $list  = shift;
    my $index = shift;
    my $val   = shift;
-   my @list  = @$list;
 
-   $list[$index] = $val;
-   return [ @list ];
+   my $s = new Set::ArrayAlt @$list;
+   $s->set($index,$val);
+   return [ $s->list() ];
 }
 
 1;

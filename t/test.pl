@@ -17,8 +17,9 @@ sub test {
 
   # Processed values
 
-  $t   = Template->new();
-  $t->process("$dir/01.in", $data,"$dir/$test.out");
+  unlink("$dir/$test.out");
+  $t   = Template->new({ INCLUDE_PATH => $dir });
+  $t->process("01.in", $data, "$dir/$test.out")  ||  die $t->error(),"\n";;
   $out = new IO::File;
   $out->open("$dir/$test.out");
   @out = <$out>;

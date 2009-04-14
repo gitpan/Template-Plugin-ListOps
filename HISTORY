@@ -20,5 +20,7 @@ Version 1.04  2008-05-09
    Final changes to meet requirements on http://cpants.perl.org/
    Bug fix so it won't fail with "Too early to specify a build action"
 
-Version 1.05
+Version 2.00  2009-04-14
+   Moved list operations to Set::ArrayAlt and rewrote functions here
+      as wrappers around that module.
 

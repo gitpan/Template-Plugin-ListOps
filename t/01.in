@@ -1,4 +1,4 @@
-[% USE ListOps -%]
+[% USE ListOps; -%]
 This tests list operations:
 
 [% l = [ 'a', 'a', 'c', 'b' ] -%]
@@ -411,4 +411,3 @@ Set (a x a c)                          :
 [%- FOREACH ele = ListOps.set(l,1,'x') -%]
  [% ele -%]
 [% END -%]
-

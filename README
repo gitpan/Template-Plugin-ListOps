@@ -19,6 +19,9 @@ DESCRIPTION
     virtual methods.
 
 METHODS
+    Unless otherwise stated, the lists that are passed in to the methods are
+    not modified.
+
     Template::Plugin::ListOps makes the following methods available:
 
     unique
@@ -151,6 +154,8 @@ METHODS
            [% ele = ListOps.popval(list) %]
 
         These remove the first or last elements of the list and return it.
+
+        The lists passed in ARE modified.
 
     unshiftval, pushval
            [% list = ListOps.unshiftval(list,vals) %]
