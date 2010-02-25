@@ -77,7 +77,7 @@ Splice ()                              :
        (a x y c)                       : a x y c
        (a x y c)                       : a x y c
 Index (0)                              : 0
-      ()                               : 
+      ()                               : -1
 Rindex (2)                             : 2
-       ()                              : 
+       ()                              : -1
 Set (a x a c)                          : a x a c

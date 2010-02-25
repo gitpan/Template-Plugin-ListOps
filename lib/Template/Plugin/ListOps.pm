@@ -1,11 +1,11 @@
 package Template::Plugin::ListOps;
-# Copyright (c) 2007-2009 Sullivan Beck. All rights reserved.
+# Copyright (c) 2007-2010 Sullivan Beck. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 ###############################################################################
 
-$VERSION = "2.00";
+$VERSION = "2.01";
 
 require 5.004;
 
@@ -14,9 +14,7 @@ use strict;
 use base qw( Template::Plugin );
 use Template;
 use Template::Plugin;
-use Set::ArrayAlt;
-
-use Sort::DataTypes;
+use Array::AsObject;
 
 ###############################################################################
 ###############################################################################
@@ -25,7 +23,7 @@ sub unique {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->unique();
    return [ $s->list() ];
 }
@@ -36,7 +34,7 @@ sub compact {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->compact();
    return [ $s->list() ];
 }
@@ -51,8 +49,8 @@ sub union {
    $op       = "unique"  if (! $op);
    my $u     = ($op eq "unique" ? 1 : 0);
 
-   my $s1  = new Set::ArrayAlt @$list1;
-   my $s2  = new Set::ArrayAlt @$list2;
+   my $s1  = new Array::AsObject @$list1;
+   my $s2  = new Array::AsObject @$list2;
    my $s3  = $s1->union($s2,$u);
    return [ $s3->list() ];
 }
@@ -67,8 +65,8 @@ sub difference {
    $op       = "unique"  if (! $op);
    my $u     = ($op eq "unique" ? 1 : 0);
 
-   my $s1  = new Set::ArrayAlt @$list1;
-   my $s2  = new Set::ArrayAlt @$list2;
+   my $s1  = new Array::AsObject @$list1;
+   my $s2  = new Array::AsObject @$list2;
    my $s3  = $s1->difference($s2,$u);
    return [ $s3->list() ];
 }
@@ -83,8 +81,8 @@ sub intersection {
    $op       = "unique"  if (! $op);
    my $u     = ($op eq "unique" ? 1 : 0);
 
-   my $s1  = new Set::ArrayAlt @$list1;
-   my $s2  = new Set::ArrayAlt @$list2;
+   my $s1  = new Array::AsObject @$list1;
+   my $s2  = new Array::AsObject @$list2;
    my $s3  = $s1->intersection($s2,$u);
    return [ $s3->list() ];
 }
@@ -99,8 +97,8 @@ sub symmetric_difference {
    $op       = "unique"  if (! $op);
    my $u     = ($op eq "unique" ? 1 : 0);
 
-   my $s1  = new Set::ArrayAlt @$list1;
-   my $s2  = new Set::ArrayAlt @$list2;
+   my $s1  = new Array::AsObject @$list1;
+   my $s2  = new Array::AsObject @$list2;
    my $s3  = $s1->symmetric_difference($s2,$u);
    return [ $s3->list() ];
 }
@@ -112,7 +110,7 @@ sub at {
    my $list = shift;
    my $pos  = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->at($pos);
 }
 
@@ -136,7 +134,7 @@ sub sorted {
       $meth=$meth{$meth};
    }
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->sort($meth,@args);
    return [ $s->list() ];
 }
@@ -156,14 +154,14 @@ sub first {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->first();
 }
 sub last {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->last();
 }
 
@@ -173,7 +171,7 @@ sub shiftval {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    my $ret = $s->shift();
    @$list  = $s->list();
 
@@ -183,7 +181,7 @@ sub popval {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    my $ret = $s->pop();
    @$list  = $s->list();
 
@@ -200,7 +198,7 @@ sub unshiftval {
       @vals = @{ $vals[0] };
    }
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->unshift(@vals);
    return [ $s->list() ];
 }
@@ -212,7 +210,7 @@ sub pushval {
       @vals = @{ $vals[0] };
    }
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->push(@vals);
    return [ $s->list() ];
 }
@@ -223,14 +221,14 @@ sub minval {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->min("numerical");
 }
 sub maxval {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->max("numerical");
 }
 
@@ -238,14 +236,14 @@ sub minalph {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->min("alphabetic");
 }
 sub maxalph {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->max("alphabetic");
 }
 
@@ -277,7 +275,7 @@ sub reverse {
    shift;
    my $list = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->reverse();
    return [ $s->list() ];
 }
@@ -296,7 +294,7 @@ sub rotate {
    $num          = 1  if (! $num);
    $num          = -$num  if ($direction eq "ltof");
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->rotate($num);
    return [ $s->list() ];
 }
@@ -308,7 +306,7 @@ sub count {
    my $list = shift;
    my $val  = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->count($val);
 }
 
@@ -322,7 +320,7 @@ sub delete {
    $op      = "unique"  if (! $op);
    my $all  = ($op eq "unique" ? 1 : 0);
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->delete($all,0,$val);
    return [ $s->list() ];
 }
@@ -337,8 +335,8 @@ sub is_equal {
    $op       = "unique"  if (! $op);
    my $u     = ($op eq "unique" ? 1 : 0);
 
-   my $s1  = new Set::ArrayAlt @$list1;
-   my $s2  = new Set::ArrayAlt @$list2;
+   my $s1  = new Array::AsObject @$list1;
+   my $s2  = new Array::AsObject @$list2;
    $s1->is_equal($s2,$u);
 }
 
@@ -363,7 +361,7 @@ sub fill {
    my $start  = shift;
    my $length = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->fill($val,$start,$length);
    return [ $s->list() ];
 }
@@ -380,7 +378,7 @@ sub splice {
       @vals = @{ $vals[0] };
    }
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->splice($start,$length,@vals);
    return [ $s->list() ];
 }
@@ -392,7 +390,7 @@ sub indexval {
    my $list = shift;
    my $val  = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    my $ret = $s->index($val);
    return $ret;
 }
@@ -401,7 +399,7 @@ sub rindexval {
    my $list = shift;
    my $val  = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    my $ret = $s->rindex($val);
    return $ret;
 }
@@ -414,7 +412,7 @@ sub set {
    my $index = shift;
    my $val   = shift;
 
-   my $s = new Set::ArrayAlt @$list;
+   my $s = new Array::AsObject @$list;
    $s->set($index,$val);
    return [ $s->list() ];
 }

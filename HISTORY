@@ -24,3 +24,5 @@ Version 2.00  2009-04-14
    Moved list operations to Set::ArrayAlt and rewrote functions here
       as wrappers around that module.
 
+Version 2.01
+   Set::ArrayAlt renamed to Array::AsObject
